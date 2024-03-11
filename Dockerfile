@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-jammy
+FROM openjdk:17-jdk-slim
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} ingestion-utility.jar
 EXPOSE 8080
