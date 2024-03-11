@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ingestion-utility
+  name: ingestion-utility
+  namespace: ingestion-utility
+spec:
+  #progressDeadlineSeconds: 600
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ingestion-utility
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: infotrends
+    spec:
+      containers:
+      - image: madeeasyjava/ingestion-utility:latest
+        imagePullPolicy: Always
+        name: ingestion-utility
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: 
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 512Mi
+            cpu: "1"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ingestion-utility
+  name: ingestion-utility
+  namespace: ingestion-utility
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: ingestion-utility
+  sessionAffinity: None
+  type: LoadBalancer
+
+---
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ingestion-utility
+  namespace: ingestion-utility
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ingestion-utility
+  targetCPUUtilizationPercentage: 70
