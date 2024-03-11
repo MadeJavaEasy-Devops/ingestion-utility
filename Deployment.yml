@@ -26,7 +26,7 @@ spec:
         imagePullPolicy: Always
         name: ingestion-utility
         ports:
-        - containerPort: 80
+        - containerPort: 8081
           protocol: TCP
         resources: 
           limits:
@@ -61,20 +61,20 @@ spec:
   selector:
     app: ingestion-utility
   sessionAffinity: None
-  type: LoadBalancer
+  type: NodePort
 
----
+...
 
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: ingestion-utility
-  namespace: ingestion-utility
-spec:
-  maxReplicas: 3
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: ingestion-utility
-  targetCPUUtilizationPercentage: 70
+#apiVersion: autoscaling/v1
+#kind: HorizontalPodAutoscaler
+#metadata:
+#  name: ingestion-utility
+#  namespace: ingestion-utility
+#spec:
+#  maxReplicas: 3
+ # minReplicas: 1
+#  scaleTargetRef:
+  #  apiVersion: apps/v1
+ #   kind: Deployment
+  #  name: ingestion-utility
+ # targetCPUUtilizationPercentage: 70
